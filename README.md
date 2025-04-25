@@ -224,4 +224,4 @@ For questions or support, please contact: yourname@example.com
 
 ---
 
-**Made with ❤️ by Your Name/Team**
+**Made with ❤️**
