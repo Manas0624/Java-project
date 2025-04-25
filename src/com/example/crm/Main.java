@@ -3,10 +3,12 @@
 // Define the package structure
 package com.example.crm;
 
+import java.io.Serializable;
 import java.util.*;
 
 // Base class for common attributes
-abstract class BaseEntity {
+abstract class BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private String name;
 
@@ -38,6 +40,7 @@ abstract class BaseEntity {
 }
 
 class Customer extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private String contactPerson;
     private String phone;
     private String email;
@@ -80,6 +83,7 @@ class Customer extends BaseEntity {
 }
 
 class Product extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private String description;
     private double price;
 
@@ -112,6 +116,7 @@ class Product extends BaseEntity {
 }
 
 class Order extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private Customer customer;
     private List<OrderItem> orderItems;
     private double totalAmount;
@@ -154,7 +159,8 @@ class Order extends BaseEntity {
     }
 }
 
-class OrderItem {
+class OrderItem implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Product product;
     private int quantity;
 
@@ -181,10 +187,25 @@ class CustomerService {
     private List<Customer> customers = new ArrayList<>();
     private int nextCustomerId = 1;
 
+    public CustomerService() {
+        loadData();
+    }
+    
+    private void loadData() {
+        customers = DataStorage.loadCustomers();
+        if (!customers.isEmpty()) {
+            nextCustomerId = customers.stream()
+                    .mapToInt(Customer::getId)
+                    .max()
+                    .getAsInt() + 1;
+        }
+    }
+
     public void addCustomer(Customer customer) {
         customer.setId(nextCustomerId++);
         customers.add(customer);
         System.out.println("Customer added successfully.");
+        DataStorage.saveCustomers(customers);
     }
 
     public Customer getCustomerById(int id) {
@@ -203,6 +224,7 @@ class CustomerService {
             customer.setPhone(phone);
             customer.setEmail(email);
             System.out.println("Customer updated successfully.");
+            DataStorage.saveCustomers(customers);
         } else {
             System.out.println("Customer with ID " + id + " not found.");
         }
@@ -213,6 +235,7 @@ class CustomerService {
         if (customer != null) {
             customers.remove(customer);
             System.out.println("Customer deleted successfully.");
+            DataStorage.saveCustomers(customers);
         } else {
             System.out.println("Customer with ID " + id + " not found.");
         }
@@ -222,11 +245,26 @@ class CustomerService {
 class ProductService {
     private List<Product> products = new ArrayList<>();
     private int nextProductId = 1;
+    
+    public ProductService() {
+        loadData();
+    }
+    
+    private void loadData() {
+        products = DataStorage.loadProducts();
+        if (!products.isEmpty()) {
+            nextProductId = products.stream()
+                    .mapToInt(Product::getId)
+                    .max()
+                    .getAsInt() + 1;
+        }
+    }
 
     public void addProduct(Product product) {
         product.setId(nextProductId++);
         products.add(product);
         System.out.println("Product added successfully.");
+        DataStorage.saveProducts(products);
     }
 
     public Product getProductById(int id) {
@@ -244,6 +282,7 @@ class ProductService {
             product.setDescription(description);
             product.setPrice(price);
             System.out.println("Product updated successfully.");
+            DataStorage.saveProducts(products);
         } else {
             System.out.println("Product with ID " + id + " not found.");
         }
@@ -254,6 +293,7 @@ class ProductService {
         if (product != null) {
             products.remove(product);
             System.out.println("Product deleted successfully.");
+            DataStorage.saveProducts(products);
         } else {
             System.out.println("Product with ID " + id + " not found.");
         }
@@ -269,6 +309,17 @@ class OrderService {
     public OrderService(CustomerService customerService, ProductService productService) {
         this.customerService = customerService;
         this.productService = productService;
+        loadData();
+    }
+    
+    private void loadData() {
+        orders = DataStorage.loadOrders();
+        if (!orders.isEmpty()) {
+            nextOrderId = orders.stream()
+                    .mapToInt(Order::getId)
+                    .max()
+                    .getAsInt() + 1;
+        }
     }
 
     public void createOrder(int customerId) {
@@ -277,6 +328,7 @@ class OrderService {
             Order order = new Order(nextOrderId++, customer);
             orders.add(order);
             System.out.println("Order created with ID: " + order.getId());
+            DataStorage.saveOrders(orders);
         } else {
             System.out.println("Customer not found.");
         }
@@ -297,6 +349,7 @@ class OrderService {
         if (order != null && product != null) {
             order.addOrderItem(new OrderItem(product, quantity));
             System.out.println("Product added to order.");
+            DataStorage.saveOrders(orders);
         } else {
             System.out.println("Order or Product not found.");
         }
@@ -319,6 +372,13 @@ class CRMApp {
     private static final OrderService orderService = new OrderService(customerService, productService);
 
     public static void main(String[] args) {
+        // Initialize sample data if storage is empty
+        DataStorage.initializeSampleData(customerService, productService, orderService);
+        
+        runConsoleApp();
+    }
+
+    private static void runConsoleApp() {
         boolean running = true;
         while (running) {
             System.out.println("\n--- CRM Management System ---");

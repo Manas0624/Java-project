@@ -1,29 +1,45 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Compiled class files
+*.class
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Generated files
+data/*.dat
 
-### VS Code ###
+# IDE-specific files
+.idea/
 .vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
 
-### Mac OS ###
+# OS-specific files
 .DS_Store
+Thumbs.db
+*.lnk
+
+# Generated documentation
+/docs/javadoc/
+
+# Backup files
+*~
+*.bak
+
+# Logs
+*.log
+
+# Duplicated project directory
+Java-project/
+
+# Temp files
+*.tmp
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar 
